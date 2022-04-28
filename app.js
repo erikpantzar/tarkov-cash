@@ -1,45 +1,42 @@
-const axios = require('axios')
-const cheerio = require('cheerio')
+const axios = require("axios");
+const cheerio = require("cheerio");
 const admin = require("firebase-admin");
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
+const saveMoney = require('./save')
 
-};
+var serviceAccount = require("./tarkovmoney-94582-firebase-adminsdk-1ty9f-3da2dac08a.json");
 
-// Initialize Firebase
-admin.initializeApp(firebaseConfig);
+admin.initializeApp({
+  databaseURL: `https://tarkovmoney.europe-west1.firebaseio.com`,
+  credential: admin.credential.cert(serviceAccount),  
+});
 
-const url = 'https://www.escapefromtarkov.com/cash'
 
+let db = admin.firestore();
+
+const url = "https://www.escapefromtarkov.com/cash";
+
+
+let money;
 
 async function getMoney() {
-  let money;
-
-  await axios.get(url)
-    .then((res) => {
-     const d = cheerio.load(res.data)
-     const moneyLeft = d('.count_left').text()  
-
-     money = moneyLeft
-  }) 
+  await axios.get(url).then((res) => {
+    const d = cheerio.load(res.data);
+    const moneyLeft = d(".count_left").text();
+    money = moneyLeft
+    return moneyLeft;
+  });
 
   return money
 }
 
+const init = async () => {
+  const money = await getMoney()
+  saveMoney({ value: money, db })
+}
 
+setInterval(() => {
+  init()
+}, 7000)
 
-
-const saveMoney = (value) => {
-  // store data gotten from main thread in database
-  db.collection("Rates")
-    .doc("cash")
-    .set({
-      money: JSON.stringify(value),
-    })
-    .then(() => {
-      // done
-    })
-    .catch((err) => console.log(err));
-};
-
+init()
