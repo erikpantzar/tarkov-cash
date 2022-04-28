@@ -1,6 +1,7 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const admin = require("firebase-admin");
+const http = require("http");
 
 const saveMoney = require('./save')
 
@@ -37,6 +38,21 @@ const init = async () => {
 
 setInterval(() => {
   init()
-}, 7000)
+}, 23000)
 
-init()
+
+
+var port = process.env.PORT || 8080;
+
+const host = 'localhost';
+
+const requestListener = function (req, res) {
+  res.writeHead(200);
+  res.end("My first server!");
+};
+
+const server = http.createServer(requestListener);
+
+server.listen(port, host, () => {
+    console.log(`Server is running on http://${host}:${port}`);
+});
