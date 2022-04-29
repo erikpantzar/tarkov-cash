@@ -41,18 +41,25 @@ setInterval(() => {
 }, 23000)
 
 
+const express = require('express');        // call express
+const app = express();                 // define our app using express
+const bodyParser = require('body-parser');
 
-var port = process.env.PORT || 8080;
 
-const host = 'localhost';
-
-const requestListener = function (req, res) {
-  res.writeHead(200);
-  res.end("My first server!");
-};
-
-const server = http.createServer(requestListener);
-
-server.listen(port, host, () => {
-    console.log(`Server is running on http://${host}:${port}`);
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
 });
+
+app.use('/', express.static(__dirname + '/client'));
+
+var port = process.env.PORT || 8080;        // set our port
+
+// 
+// START THE SERVER
+// =============================================================================
+app.listen(port);
+console.log('Magic happens on port ' + port);
