@@ -8,10 +8,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.4.4/d3.min.js"></script>
 </head>
 <body>
-  <h1>Cash?</h1>
+  <h1 style="position: absolute; left: 20px; bottom: 20px;">Cash left?</h1>
 
   <!-- Create a div where the graph will take place -->
-<div id="cash"></div>
+<div id="cash" style="position: absolute; top: 0; left: 0"></div>
 
 
 <script>
@@ -34,23 +34,42 @@
   const { high, low } = getSorted()
 
   const scaleTime = d3.scaleTime()
-    .domain([new Date(high.date), new Date(low.date)])
+    .domain([new Date(low.date), new Date(high.date)])
     .range([0, 700])
 
   const scaleY = d3.scaleLinear()
-    .domain([low.value, high.value])
-    .range([0, 700])
+    .domain([high.value, low.value])
+    .range([20, 500])
 
 
-  const svg = d3.select('#cash').append('svg').attr('width', 1200).attr('height', 1200)
+  const svg = d3.select('#cash').append('svg').attr('width', window.innerWidth).attr('height', window.innerHeight)
   var lineFunc = d3.line()
     .x(function(d) { return scaleTime(d.date) })
     .y(function(d) { return scaleY(d.value) })
     
+
+    // stroke
   svg.append('path')
     .attr('d', lineFunc(data))
     .attr('stroke', 'purple')
     .attr('fill', 'none')
+
+    const xAx = d3.axisBottom()
+      .scale(scaleTime)
+
+  svg.append('g')
+    .attr("transform", "translate(0, 500)")
+    .call(xAx)
+
+
+  const yXi = d3.axisLeft()
+    .scale(scaleY)
+
+  svg.append('g')
+    .attr('transform', "translate(120, 0)")
+    .call(yXi)
+
+  
 
 
 }
