@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>how much left</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.4.4/d3.min.js"></script>
+</head>
+<body>
+  <h1>Cash?</h1>
+
+  <!-- Create a div where the graph will take place -->
+<div id="cash"></div>
+
+
+<script>
+  async function init() {
+  const ind = await fetch('/api').then(res => res.json())
+  const data = ind[0].value.map(e => {
+    return {
+      date: new Date(e.date),
+      value: Number(e.value)
+    }
+  })
+
+  const getSorted = () => {
+    let sorted = data.sort((a, b) => {
+      return a.value - b.value
+    })
+
+    return {low: sorted[0], high: sorted[data.length -1]}
+  }
+  const { high, low } = getSorted()
+
+  const scaleTime = d3.scaleTime()
+    .domain([new Date(high.date), new Date(low.date)])
+    .range([0, 700])
+
+  const scaleY = d3.scaleLinear()
+    .domain([low.value, high.value])
+    .range([0, 700])
+
+
+  const svg = d3.select('#cash').append('svg').attr('width', 1200).attr('height', 1200)
+  var lineFunc = d3.line()
+    .x(function(d) { return scaleTime(d.date) })
+    .y(function(d) { return scaleY(d.value) })
+    
+  svg.append('path')
+    .attr('d', lineFunc(data))
+    .attr('stroke', 'purple')
+    .attr('fill', 'none')
+
+
+}
+init()
+  
+</script>
+</body>
+</html>

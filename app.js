@@ -1,9 +1,8 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const admin = require("firebase-admin");
-const http = require("http");
-
 const saveMoney = require('./save')
+const readMOney = require('./read')
 
 var serviceAccount = require("./tarkovmoney-94582-firebase-adminsdk-1ty9f-3da2dac08a.json");
 
@@ -55,6 +54,16 @@ app.use(function(req, res, next) {
 });
 
 app.use('/', express.static(__dirname + '/client'));
+
+app.use('/api', async (req, res) => {
+  const money = await getMoney()
+  const read = await readMOney({ db })
+  res.send(
+    
+    read
+  )
+})
+
 
 var port = process.env.PORT || 8080;        // set our port
 
