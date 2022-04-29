@@ -4,14 +4,51 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./favicon.png" rel="icon" type="image/x-icon" />
   <title>how much left</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.4.4/d3.min.js"></script>
+  <style>
+    :root {
+      --color: #fff;
+      --bg: #000;
+      --stroke: silver;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --color: #000;
+        --bg: #fff;
+        --stroke: orange;
+      }
+    }
+
+    html,
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1,h2,h3, p {
+      margin: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--color);
+      stroke: var(--stroke);
+    }    
+  </style>
 </head>
 <body>
-  <h1 style="position: absolute; left: 20px; bottom: 20px;">Cash left?</h1>
+  <div style="position: fixed; left: 20px; bottom: 20px;">
+  <p>Crawling http://escapefromtarkov.com/cash</p>
+</div>
+
+<h1 style="font-size: 8vh; position: fixed;  text-align: center; width: 100%; top: 40%" id="left"></h1>
 
   <!-- Create a div where the graph will take place -->
-<div id="cash" style="position: absolute; top: 0; left: 0"></div>
+<div id="cash" style="position: fixed; top: 0; left: 30px"></div>
 
 
 <script>
@@ -23,6 +60,52 @@
       value: Number(e.value)
     }
   })
+
+
+  const velocity_hour = data.slice(data.length - 61, data.length - 1)
+  const money_hour = velocity_hour.reduce((partialSum, a) => partialSum + a.value, 0);
+  console.log(money_hour / 60)
+
+  function hours(data) {
+    const hours = data.length / 60
+    const velo = []
+
+    for (let i = 0; i < data.length - 1; i++) {
+      
+    }
+
+
+    return { hours, totalEntries: data.length }
+  }
+
+  console.log(hours(data))
+  
+
+
+  function isLeft() {
+    const mon = data[data.length - 1].value
+
+    // 1 000 000 000
+    if (mon.toString().length > 10) {
+      return `${Math.floor(mon / Number(1000000000))}b left`
+    }
+    // 1000 000
+    if (mon.toString().length > 7) {
+      return `${Math.floor(mon / Number(1000000))}m left`
+    }
+
+    // 1000
+    if (mon.toString().length > 3) {
+      return `${Math.floor(mon / Number(1000))}k left`
+    }
+
+    return `${mon} roubles left`
+  }
+
+  const left = isLeft()
+  window.document.title = left
+  const lefty = document.querySelector('#left')
+  lefty.innerHTML = left
 
   const getSorted = () => {
     let sorted = data.sort((a, b) => {
@@ -42,12 +125,17 @@
     .range([20, 500])
 
 
-  const svg = d3.select('#cash').append('svg').attr('width', window.innerWidth).attr('height', window.innerHeight)
+  const svg = d3.select('#cash')
+    .append('svg')
+    .attr('width', window.innerWidth - 200)
+    .attr('height', window.innerHeight)
+    .attr("transform",
+          "translate(",200,")")
+
   var lineFunc = d3.line()
     .x(function(d) { return scaleTime(d.date) })
     .y(function(d) { return scaleY(d.value) })
     
-
     // stroke
   svg.append('path')
     .attr('d', lineFunc(data))
@@ -55,24 +143,22 @@
     .attr('fill', 'none')
 
     const xAx = d3.axisBottom()
+      .ticks(10)
       .scale(scaleTime)
 
   svg.append('g')
     .attr("transform", "translate(0, 500)")
     .call(xAx)
 
-
-  const yXi = d3.axisLeft()
+  const yXi = d3.axisRight()
     .scale(scaleY)
 
   svg.append('g')
-    .attr('transform', "translate(120, 0)")
+    .attr('transform', "translate(0, 0)")
     .call(yXi)
 
-  
-
-
 }
+
 init()
   
 </script>
