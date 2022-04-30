@@ -63,6 +63,12 @@
         color: var(--color);
         stroke: var(--stroke);
       }
+
+
+      .tick text {
+        stroke: none;
+        fill: var(--stroke);
+      }
     </style>
   </head>
   <body>
@@ -155,11 +161,20 @@
     <script>
       async function init() {
         const ind = await fetch("/api").then((res) => res.json());
+        const values = []
         const data = ind[0].value.map((e) => {
           return {
             date: new Date(e.date),
             value: Number(e.value),
           };
+        }).filter(entry => {
+          // remove doubles
+          // when running the backend from several sources
+          // I get double writes
+          if (values.indexOf(entry.value) === -1) {
+            values.push(entry.value)
+            return entry
+          }
         });
 
         ///////////////////
@@ -236,12 +251,12 @@
         const scaleTime = d3
           .scaleTime()
           .domain([new Date(low.date), new Date(high.date)])
-          .range([0, 800]);
+          .range([0, window.innerWidth - 40]);
 
         const scaleY = d3
           .scaleLinear()
           .domain([high.value, low.value])
-          .range([0, 340]);
+          .range([0, window.innerHeight - 80]);
 
         const svg = d3
           .select("#cash")
@@ -266,10 +281,18 @@
           .attr("fill", "none");
 
         const xAx = d3.axisTop().ticks(12).scale(scaleTime);
-        svg.append("g").attr("transform", "translate(0, 40)").call(xAx);
+        
+        svg
+          .append("g")
+          .attr("transform", "translate(0, 40)")
+          .call(xAx);
 
         const yXi = d3.axisRight().ticks(5).scale(scaleY);
-        svg.append("g").attr("transform", "translate(0, 10)").call(yXi);
+
+        svg
+          .append("g")
+          .attr("transform", "translate(0, 10)")
+          .call(yXi);
       }
 
       init();

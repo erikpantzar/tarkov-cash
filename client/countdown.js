@@ -30,5 +30,5 @@ function countDown({ targetElement, hours }) {
       clearInterval(x);
       targetElement.innerHTML = "EXPIRED";
     }
-  }, 1000);
+  }, 300);
 }
