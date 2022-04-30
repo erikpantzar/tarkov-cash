@@ -1,166 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="./favicon.png" rel="icon" type="image/x-icon" />
-  <title>how much left</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.4.4/d3.min.js"></script>
-  <style>
-    :root {
-      --color: #fff;
-      --bg: #000;
-      --stroke: silver;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="./favicon.png" rel="icon" type="image/x-icon" />
+    <script src="./countdown.js"></script>
 
-    @media (prefers-color-scheme: light) {
-      :root {
-        --color: #000;
-        --bg: #fff;
-        --stroke: orange;
+    <title>how much left</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.4.4/d3.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-VJSLHWRJLR"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
       }
-    }
+      gtag("js", new Date());
 
-    html,
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-    }
+      gtag("config", "G-VJSLHWRJLR");
+    </script>
+    <style>
+      :root {
+        --color: #fff;
+        --bg: #000;
+        --stroke: silver;
+      }
 
-    h1,h2,h3, p {
-      margin: 0;
-    }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --color: #000;
+          --bg: #fff;
+          --stroke: orange;
+        }
+      }
 
-    body {
-      background-color: var(--bg);
-      color: var(--color);
-      stroke: var(--stroke);
-    }    
-  </style>
-</head>
-<body>
-  <div style="position: fixed; left: 20px; bottom: 20px;">
-  <p>Crawling http://escapefromtarkov.com/cash</p>
-</div>
+      html,
+      body {
+        font-family: "Roboto", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
 
-<h1 style="font-size: 8vh; position: fixed;  text-align: center; width: 100%; top: 40%" id="left"></h1>
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
 
-  <!-- Create a div where the graph will take place -->
-<div id="cash" style="position: fixed; top: 0; left: 30px"></div>
+      body {
+        background-color: var(--bg);
+        color: var(--color);
+        stroke: var(--stroke);
+      }
+    </style>
+  </head>
+  <body>
+    <div style="position: fixed; left: 20px; bottom: 20px">
+      <p>
+        Crawling http://escapefromtarkov.com/cash
+        <a style="color: var(--color)" href="https://twitter.com/epantzar"
+          >@epantzar</a
+        >
 
+        <a
+          style="color: var(--color)"
+          href="https://github.com/erikpantzar/tarkov-cash"
+          >github/erikpantzar/tarkov-cash</a
+        >
+      </p>
+    </div>
 
-<script>
-  async function init() {
-  const ind = await fetch('/api').then(res => res.json())
-  const data = ind[0].value.map(e => {
-    return {
-      date: new Date(e.date),
-      value: Number(e.value)
-    }
-  })
+    <div
+      style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+        top: 40%;
+      "
+    >
+      <h1 style="font-size: 12vh; opacity: 0.8" id="left"></h1>
+      <h2 id="velo" style="opacity: 0.5; font-weight: 400"></h2>
+      <div style="margin-top: 1.5vh; font-size: 12vh; opacity: 0.8; font-weight: 700;" id="demo"></div>
+      <span style="opacity: 0.6;">Time left with current speed</span>
+    </div>
 
+    <!-- Create a div where the graph will take place -->
+    <div id="cash" style="position: fixed; top: 0; left: 30px"></div>
 
-  const velocity_hour = data.slice(data.length - 61, data.length - 1)
-  const money_hour = velocity_hour.reduce((partialSum, a) => partialSum + a.value, 0);
-  console.log(money_hour / 60)
+    <script>
+      async function init() {
+        const ind = await fetch("/api").then((res) => res.json());
+        const data = ind[0].value.map((e) => {
+          return {
+            date: new Date(e.date),
+            value: Number(e.value),
+          };
+        });
 
-  function hours(data) {
-    const hours = data.length / 60
-    const velo = []
+        ///////////////////
+        // 1. get 60 points approx 1 hour
+        const hour = data
+          .slice(data.length - 61, data.length - 1)
+          .map((e) => e.value);
 
-    for (let i = 0; i < data.length - 1; i++) {
-      
-    }
+        const tot_last_hour = hour[0] - hour[hour.length - 1];
+        const velo = document.querySelector("#velo");
+        velo.innerHTML = `${isLeft(tot_last_hour).message}/h in the last hour`;
 
+        ////////////////////
 
-    return { hours, totalEntries: data.length }
-  }
+        const remain = data[data.length - 1].value;
+        const hours_left = remain / tot_last_hour;
 
-  console.log(hours(data))
-  
+        countDown({ 
+            targetElement: document.querySelector('#demo'),
+            hours: Math.floor(hours_left)
+          })
 
+        ///hours
 
-  function isLeft() {
-    const mon = data[data.length - 1].value
+        /////////////////
 
-    // 1 000 000 000
-    if (mon.toString().length > 10) {
-      return `${Math.floor(mon / Number(1000000000))}b left`
-    }
-    // 1000 000
-    if (mon.toString().length > 7) {
-      return `${Math.floor(mon / Number(1000000))}m left`
-    }
+        function isLeft(value) {
+          const mon = Number(value);
 
-    // 1000
-    if (mon.toString().length > 3) {
-      return `${Math.floor(mon / Number(1000))}k left`
-    }
+          // 1 000 000 000
+          if (mon.toString().length > 10) {
+            return {
+              message: `${Math.floor(mon / Number(1000000000))}b`,
+              value: mon,
+            };
+          }
+          // 1000 000
+          if (mon.toString().length > 7) {
+            return {
+              message: `${Math.floor(mon / Number(1000000))}m`,
+              value: mon,
+            };
+          }
 
-    return `${mon} roubles left`
-  }
+          // 1000
+          if (mon.toString().length > 3) {
+            return {
+              message: `${Math.floor(mon / Number(1000))}k`,
+              value: mon,
+            };
+          }
 
-  const left = isLeft()
-  window.document.title = left
-  const lefty = document.querySelector('#left')
-  lefty.innerHTML = left
+          return {
+            message: `${mon} roubles`,
+            value: mon,
+          };
+        }
 
-  const getSorted = () => {
-    let sorted = data.sort((a, b) => {
-      return a.value - b.value
-    })
+        const left = isLeft(data[data.length - 1].value).message;
+        window.document.title = `${left} left`;
+        const lefty = document.querySelector("#left");
+        lefty.innerHTML = `${left} left`;
 
-    return {low: sorted[0], high: sorted[data.length -1]}
-  }
-  const { high, low } = getSorted()
+        /// Sorting
+        const getSorted = () => {
+          let sorted = data.sort((a, b) => {
+            return a.value - b.value;
+          });
 
-  const scaleTime = d3.scaleTime()
-    .domain([new Date(low.date), new Date(high.date)])
-    .range([0, 700])
+          return { low: sorted[0], high: sorted[data.length - 1] };
+        };
+        const { high, low } = getSorted();
 
-  const scaleY = d3.scaleLinear()
-    .domain([high.value, low.value])
-    .range([20, 500])
+        const scaleTime = d3
+          .scaleTime()
+          .domain([new Date(low.date), new Date(high.date)])
+          .range([0, 800]);
 
+        const scaleY = d3
+          .scaleLinear()
+          .domain([high.value, low.value])
+          .range([0, 340]);
 
-  const svg = d3.select('#cash')
-    .append('svg')
-    .attr('width', window.innerWidth - 200)
-    .attr('height', window.innerHeight)
-    .attr("transform",
-          "translate(",200,")")
+        const svg = d3
+          .select("#cash")
+          .append("svg")
+          .attr("width", window.innerWidth - 120)
+          .attr("height", window.innerHeight - 20)
+          .attr("transform", "translate(20, 10)");
 
-  var lineFunc = d3.line()
-    .x(function(d) { return scaleTime(d.date) })
-    .y(function(d) { return scaleY(d.value) })
-    
-    // stroke
-  svg.append('path')
-    .attr('d', lineFunc(data))
-    .attr('stroke', 'purple')
-    .attr('fill', 'none')
+        var lineFunc = d3
+          .line()
+          .x(function (d) {
+            return scaleTime(d.date);
+          })
+          .y(function (d) {
+            return scaleY(d.value);
+          });
 
-    const xAx = d3.axisBottom()
-      .ticks(10)
-      .scale(scaleTime)
+        // stroke
+        svg
+          .append("path")
+          .attr("d", lineFunc(data))
+          .attr("stroke", "purple")
+          .attr("fill", "none");
 
-  svg.append('g')
-    .attr("transform", "translate(0, 500)")
-    .call(xAx)
+        const xAx = d3.axisTop().ticks(12).scale(scaleTime);
+        svg.append("g").attr("transform", "translate(0, 40)").call(xAx);
 
-  const yXi = d3.axisRight()
-    .scale(scaleY)
+        const yXi = d3.axisRight().ticks(5).scale(scaleY);
+        svg.append("g").attr("transform", "translate(0, 10)").call(yXi);
 
-  svg.append('g')
-    .attr('transform', "translate(0, 0)")
-    .call(yXi)
+      }
 
-}
-
-init()
-  
-</script>
-</body>
+      init();
+    </script>
+  </body>
 </html>
