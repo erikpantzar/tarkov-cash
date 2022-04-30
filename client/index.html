@@ -81,24 +81,75 @@
       </p>
     </div>
 
-    <div
-      style="
+    <style>
+      .content {
         display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
         flex-direction: column;
-        top: 40%;
-      "
-    >
-      <h1 style="font-size: 12vh; opacity: 0.8" id="left"></h1>
-      <h2 id="velo" style="opacity: 0.5; font-weight: 400"></h2>
-      <div style="margin-top: 1.5vh; font-size: 12vh; opacity: 0.8; font-weight: 700;" id="demo"></div>
-      <span style="opacity: 0.6;">Time left with current speed</span>
+        position: inherit;
+        padding: 25px;
+      }
+
+      .big {
+        font-size: 36px;
+        opacity: 0.8;
+        font-weight: 700;
+      }
+
+      .small {
+        font-size: 18px;
+        opacity: 0.6;
+        font-weight: 400;
+      }
+
+      .small + .big {
+        margin-top: 1.5vh;
+      }
+
+      @media (min-width: 640px) {
+        .content {
+          padding: 0;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          top: 40%;
+        }
+
+        .big {
+          font-size: 72px;  
+        }
+
+        .small {
+          font-size: 36px;
+        }
+      }      
+    </style>
+
+    <div class="content">
+      <h1 class="big" id="left"></h1>
+      <h2 class="small" id="velo"></h2>
+      <div
+        class="big"
+        id="demo"
+      ></div>
+      <span class="small">Time left with current speed</span>
     </div>
 
+    <style>
+      #cash {
+        top: 0;
+        left: 0;
+      }
+
+      @media (min-width: 640px) {
+        #cash {
+          position: fixed;
+          left: 30px;
+        }
+      }
+    </style>
+
     <!-- Create a div where the graph will take place -->
-    <div id="cash" style="position: fixed; top: 0; left: 30px"></div>
+    <div id="cash"></div>
 
     <script>
       async function init() {
@@ -125,10 +176,10 @@
         const remain = data[data.length - 1].value;
         const hours_left = remain / tot_last_hour;
 
-        countDown({ 
-            targetElement: document.querySelector('#demo'),
-            hours: Math.floor(hours_left)
-          })
+        countDown({
+          targetElement: document.querySelector("#demo"),
+          hours: Math.floor(hours_left),
+        });
 
         ///hours
 
@@ -194,9 +245,8 @@
         const svg = d3
           .select("#cash")
           .append("svg")
-          .attr("width", window.innerWidth - 120)
-          .attr("height", window.innerHeight - 20)
-          .attr("transform", "translate(20, 10)");
+          .attr("width", window.innerWidth)
+          .attr("height", window.innerHeight)
 
         var lineFunc = d3
           .line()
@@ -219,7 +269,6 @@
 
         const yXi = d3.axisRight().ticks(5).scale(scaleY);
         svg.append("g").attr("transform", "translate(0, 10)").call(yXi);
-
       }
 
       init();
