@@ -137,7 +137,7 @@
         class="big"
         id="demo"
       ></div>
-      <span class="small">Time left with current speed</span>
+      <span class="small">time left at current pace</span>
     </div>
 
     <style>
@@ -185,7 +185,7 @@
 
         const tot_last_hour = hour[0] - hour[hour.length - 1];
         const velo = document.querySelector("#velo");
-        velo.innerHTML = `${isLeft(tot_last_hour).message}/h in the last hour`;
+        velo.innerHTML = `${isLeft(tot_last_hour).message} donated this hour`;
 
         ////////////////////
 
